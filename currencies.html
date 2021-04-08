@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/coins.css">
-  <title>CoinGecko Coins</title>
+  <title>CoinGecko Currencies</title>
 </head>
 
 <body>
@@ -13,25 +13,21 @@
   
   <form onsubmit="scrollToSymbol(); return false;">
     Search by symbol: <br>
-    <input type="text" placeholder="XMR" id="search"><br>
+    <input type="text" placeholder="USD" id="search"><br>
     <input type="submit" value="Search"><br>
 
     <label id="search-err">
-      Failed to find coin!<br>
-      You need to search for the coin's symbol<br>
-      For example: "BTC", "ETH", "XMR"
+      Failed to find currency!<br>
+      It may not be supported by CoinGecko<br>
+      Example: "USD", "BTC", "EUR"
     </label>
   </form>
 
   <table id="coin-table">
     <tr>
-      <th>ID</th>
-      <th>Symbol</th>
-      <th>Name</th>
+      <th>Currency</th>
     </tr>
     <tr>
-      <td>Loading...</td>
-      <td>Loading...</td>
       <td>Loading...</td>
     </tr>
   </table>
@@ -43,10 +39,10 @@
       let id = document.getElementById("search").value.toUpperCase();
 
       try {
-        let coinId = document.getElementById(`sym-${id}`);
-        coinId.style.backgroundColor = "yellow";
-        coinId.style.color = "black";
-        coinId.scrollIntoView();
+        let currId = document.getElementById(`cur-${id}`);
+        currId.style.backgroundColor = "yellow";
+        currId.style.color = "black";
+        currId.scrollIntoView();
       }
       catch (e) {
         console.log(e);
@@ -54,26 +50,25 @@
       }
     }
 
-    function fillTable(coins) {
+    function fillTable(currencies) {
       let table = document.getElementById("coin-table");
 
-      for (const coin of coins) {
+      currencies.sort((a, b) => a.localeCompare(b));
+
+      for (const curr of currencies) {
         let row = table.insertRow(-1);
 
-        let symbol = coin["symbol"].toUpperCase();
+        let currency = curr.toUpperCase();
 
-        let idRow = row.insertCell(0);
-        idRow.innerHTML = coin["id"];
-        idRow.id = `sym-${symbol}`;
-
-        row.insertCell(1).innerHTML = symbol;
-        row.insertCell(2).innerHTML = coin["name"];
+        let currRow = row.insertCell(0);
+        currRow.innerHTML = currency;
+        currRow.id = `cur-${currency}`;
       }
 
       table.deleteRow(1);
     }
 
-    fetch("https://api.coingecko.com/api/v3/coins/list")
+    fetch("https://api.coingecko.com/api/v3/simple/supported_vs_currencies")
       .then((res) => {
         if (res.ok) {
           return res.json();
