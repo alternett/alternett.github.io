@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/coins.css">
+  <title>All CoinGecko Coins</title>
+</head>
+
+<body>
+  <!-- I'm not a web dev (or any dev for that matter) and have no clue what I'm doing -->
+  
+  <form onsubmit="scrollToSymbol(); return false;">
+    Search by symbol: <br>
+    <input type="text" placeholder="XMR" id="search"><br>
+    <input type="submit" value="Search"><br>
+
+    <label id="search-err">
+      Failed to find coin!<br>
+      You need to search for the coin's symbol<br>
+      For example: "BTC", "ETH", "XMR"
+    </label>
+  </form>
+
+  <table id="coin-table">
+    <tr>
+      <th>ID</th>
+      <th>Symbol</th>
+      <th>Name</th>
+    </tr>
+    <tr>
+      <td>Loading...</td>
+      <td>Loading...</td>
+      <td>Loading...</td>
+    </tr>
+  </table>
+
+  <script>
+    function scrollToSymbol() {
+      let errEl = document.getElementById("search-err");
+      errEl.style.visibility = "hidden";
+      let id = document.getElementById("search").value.toUpperCase();
+
+      try {
+        let coinId = document.getElementById(`sym-${id}`);
+        coinId.style.backgroundColor = "yellow";
+        coinId.style.color = "black";
+        coinId.scrollIntoView();
+      }
+      catch (e) {
+        console.log(e);
+        errEl.style.visibility = "visible";
+      }
+    }
+
+    function fillTable(coins) {
+      let table = document.getElementById("coin-table");
+
+      for (const coin of coins) {
+        let row = table.insertRow(-1);
+
+        let symbol = coin["symbol"].toUpperCase();
+
+        let idRow = row.insertCell(0);
+        idRow.innerHTML = coin["id"];
+        idRow.id = `sym-${symbol}`;
+
+        row.insertCell(1).innerHTML = symbol;
+        row.insertCell(2).innerHTML = coin["name"];
+      }
+
+      table.deleteRow(1);
+    }
+
+    fetch("https://api.coingecko.com/api/v3/coins/list")
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        }
+        else {
+          throw new Error("Something went wrong...");
+        }
+      })
+      .then((j) => {
+        fillTable(j);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  </script>
+</body>
+
+</html>
